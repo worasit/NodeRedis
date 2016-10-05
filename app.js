@@ -43,7 +43,19 @@ client.getAsync('eikon').then((res)=> {
 
 
 
-// Whenever we set a value into the same key it will replacec the old one with a new one.
+// Whenever we set a value into the same key it will replace the old one with a new one.
 // Command SET KEY VALUE
 //         TTL KEY
 //         GET KEY
+
+
+// Workflow
+// ========================================= Input =========================================================
+// TestResult ----> Series Data --> (TestResultSeries) MongoDB
+//                  Snapshot    --> (TestSnapshot)     MongoDB (Optional for safety)
+//                  Snapshot    --> (TestSnapshot)     Redis    ----> ( [ 1 min ] ServiceSnapshotProcessor ) --->  Redis (key:systemName,val:JSONString , TTL: 90)
+//
+// ======================================== Output =========================================================
+// /serviceSnapshot/systemName --> Redis (key:systemName,val:JSONString) --> Yes --> JSON.Parse(val)
+//                                                                           No  --> (TestSnapshot)     MongoDB (Optional for safety)
+// Socket (Socket.IO)          --> TBD
